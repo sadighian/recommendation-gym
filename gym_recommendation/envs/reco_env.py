@@ -43,8 +43,6 @@ class RecoEnv(Env):
                                             shape=self._get_observation(
                                                 step_number=0).shape,
                                             dtype=np.float32)
-        print("instantiated RecoEnv [max_steps={} | seed={}]".format(self.max_step + 1,
-                                                                     seed))
 
     def step(self, action=0):
         """
@@ -52,8 +50,6 @@ class RecoEnv(Env):
         """
         if self.done:
             self.observation = self.reset()
-            self.reward = 0.
-            self.action = action
             return self.observation, self.reward, self.done, {}
         self.action = action
         self.reward = self._get_reward(action=action, step_number=self.local_step_number)

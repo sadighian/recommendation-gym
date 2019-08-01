@@ -3,3 +3,5 @@
 venv
 
 .pytest_cache
+
+gym_recommendation/data/*

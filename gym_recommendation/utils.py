@@ -2,6 +2,7 @@ import requests
 import os
 import zipfile
 import pandas as pd
+from datetime import datetime as dt
 
 
 DATA_HEADER = "user id | item id | rating | timestamp"
@@ -11,10 +12,13 @@ ITEM_HEADER = "movie id | movie title | release date | video release date | IMDb
               "Romance | Sci-Fi | Thriller | War | Western"
 USER_HEADER = "user id | age | gender | occupation | zip code"
 
-CWD = os.path.dirname(os.path.realpath(__file__))
+CWD = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 
 
 def download_data():
+    start_time = dt.now()
+    print("Starting data download. Saving to [{}]".format(CWD))
+
     if not os.path.exists(CWD + '/ml-100k'):
         url = 'http://files.grouplens.org/datasets/movielens/ml-100k.zip'
         r = requests.get(url)
@@ -22,12 +26,16 @@ def download_data():
         if r.status_code != 200:
             print('Error: could not download ml100k')
 
-        with open('ml-100k.zip', 'wb') as f:
+        zip_file_path = os.path.join(CWD, 'ml-100k.zip')
+        with open(zip_file_path, 'wb') as f:
             f.write(r.content)
-        fzip = zipfile.ZipFile('ml-100k.zip', 'r')
-        fzip.extractall('.')
+
+        fzip = zipfile.ZipFile(zip_file_path, 'r')
+        fzip.extractall(path=CWD)
         fzip.close()
-        print('ml100k downloaded')
+
+        elapsed = (dt.now() - start_time).seconds
+        print('Download completed in {} seconds.'.format(elapsed))
 
 
 def convert_header_to_camel_case(headers):
@@ -42,21 +50,21 @@ def convert_header_to_camel_case(headers):
 
 def import_data():
     data = pd.read_csv(
-        CWD + '/ml-100k/u.data',
+        os.path.join(CWD, 'ml-100k', 'u.data'),
         delimiter='\t',
         names=convert_header_to_camel_case(DATA_HEADER),
         encoding='latin-1'
     )
 
     item = pd.read_csv(
-        CWD + '/ml-100k/u.item',
+        os.path.join(CWD, 'ml-100k', 'u.item'),
         delimiter='|',
         names=convert_header_to_camel_case(ITEM_HEADER),
         encoding='latin-1'
     )
 
     user = pd.read_csv(
-        CWD + '/ml-100k/u.user',
+        os.path.join(CWD, 'ml-100k', 'u.user'),
         delimiter='|',
         names=convert_header_to_camel_case(USER_HEADER),
         encoding='latin-1'

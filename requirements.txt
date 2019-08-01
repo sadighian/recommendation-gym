@@ -1,2 +1,5 @@
+pandas
+requests
 numpy
 gym
+pytest

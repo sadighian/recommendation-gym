@@ -4,8 +4,7 @@ import os
 
 cwd = os.path.dirname(os.path.realpath(__file__))
 with open('{}/requirements.txt'.format(cwd)) as f:
-      dependencies = list(map(lambda x: x.replace("\n", ""),
-                              f.readlines()))
+    dependencies = list(map(lambda x: x.replace("\n", ""), f.readlines()))
 
 
 setup(

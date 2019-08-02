@@ -1,5 +1,6 @@
 from gym.envs.registration import register
 from gym_recommendation.envs.reco_env import RecoEnv
+from gym_recommendation.utils import import_data_for_env
 
 
 register(

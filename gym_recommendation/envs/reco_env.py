@@ -9,7 +9,7 @@ class RecoEnv(Env):
     id = 'reco-v0'
     actions = np.eye(5)
 
-    def __init__(self, data, item, user, seed=1):
+    def __init__(self, data=None, item=None, user=None, seed=1):
         """
         Parameterized constructor
         """

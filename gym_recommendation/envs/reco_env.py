@@ -140,7 +140,6 @@ class RecoEnv(Env):
         """
         Extract one-hot of age group for a specific age
         """
-        bucket_number = 3  # default
         if age < 10:
             bucket_number = 0
         elif age < 20:

@@ -1,9 +1,11 @@
 import gym
 import gym_recommendation
 from datetime import datetime as dt
-from stable_baselines.common.policies import *
+
+from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.common.vec_env import SubprocVecEnv
-from stable_baselines import *
+from stable_baselines import PPO1, PPO2
+
 import os
 import argparse
 

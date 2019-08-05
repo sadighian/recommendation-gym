@@ -1,10 +1,10 @@
 # Recommendation Gym for MovieLens
-
-## 1. Overview
 **Table of contents**
 1. Overview
 2. Project Structure
 3. Getting started
+
+## 1. Overview
 
 ### 1.1 Summary
 The purpose of this project was to experiment with the application

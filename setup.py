@@ -9,7 +9,7 @@ with open(cwd) as f:
 
 setup(
     name='recommendation-gym',
-    version='1.1',
+    version='1.2',
     url='https://github.com/RedBanies3ofThem/recommendation-gym',
     license='Apache 2.0',
     author='Jonathan Sadighian',

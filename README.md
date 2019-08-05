@@ -1,5 +1,5 @@
 # Recommendation Gym for MovieLens
-**Under construction as of 1-Aug-2019**
+
 ## 1. Overview
 
 ### 1.1 Summary

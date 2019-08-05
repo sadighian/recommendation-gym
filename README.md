@@ -3,6 +3,8 @@
 1. Overview
 2. Project Structure
 3. Getting started
+4. Citing this project
+
 
 ## 1. Overview
 

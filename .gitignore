@@ -4,4 +4,6 @@ venv
 
 .pytest_cache
 
-gym_recommendation/data/*
+gym_recommendation/data
+
+tensorboard

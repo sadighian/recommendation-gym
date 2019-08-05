@@ -1,9 +1,9 @@
 import gym
 import gym_recommendation
 from datetime import datetime as dt
-from stable_baselines.common.policies import *
+from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.common.vec_env import SubprocVecEnv
-from stable_baselines import *
+from stable_baselines import PPO2
 import os
 import argparse
 
@@ -18,7 +18,7 @@ parser.add_argument('--n_steps',
                     help="Number of steps for PPO to roll out",
                     type=int)
 parser.add_argument('--tensorboard_log',
-                    default="./ppo2_recommendations",
+                    default="./tensorboard",
                     help="Logging directory for TensorBoard log",
                     type=str)
 parser.add_argument('--save_model',
@@ -52,30 +52,6 @@ parser.add_argument('--nminibatches',
 kwargs = vars(parser.parse_args())
 
 
-def evaluate(model, env, num_steps=1000):
-    """
-    Evaluate a RL agent
-    """
-    start_time = dt.now()
-    obs = env.reset()
-    step_count = 0
-    episode_number = 1
-    for i in range(num_steps):
-        step_count += 1
-        action, _states = model.predict(obs)
-        obs, reward, done, info = env.step(action)
-        if done:
-            elapsed = (dt.now() - start_time).seconds
-            print("**************EPISODE #{}****************".format(episode_number))
-            print("Total steps=", step_count, "steps/second=", step_count / elapsed)
-            print("Total correct predictions=", env.total_correct_predictions)
-            print("Prediction accuracy=", env.total_correct_predictions / step_count)
-            obs = env.reset()
-            step_count = 0
-            episode_number += 1
-            start_time = dt.now()
-
-
 def main(kwargs):
     start_time = dt.now()
     number_of_cpu = os.cpu_count()
@@ -88,7 +64,8 @@ def main(kwargs):
         'tensorboard_log': kwargs['tensorboard_log'],
         'nminibatches': min(number_of_cpu, kwargs['nminibatches']),
         'noptepochs': number_of_cpu,
-        'policy_kwargs': dict(net_arch=[kwargs['num_of_neurons']]*kwargs['num_of_layers']),
+        'policy_kwargs': dict(net_arch=[kwargs['num_of_neurons']] *
+                                       kwargs['num_of_layers']),
         'gamma': 0.0,
         'ent_coef': 0.01,
         'vf_coef': 0.5,
@@ -112,10 +89,10 @@ def main(kwargs):
         print('Saving PPO model as {}'.format(save_name))
         model.save(save_name)
 
-    evaluate(model=model,
-             env=gym.make(gym_recommendation.RecoEnv.id,
-                          **gym_recommendation.import_data_for_env()),
-             num_steps=kwargs['evaluation_steps'])
+    gym_recommendation.evaluate(model=model,
+                                env=gym.make(gym_recommendation.RecoEnv.id,
+                                             **gym_recommendation.import_data_for_env()),
+                                num_steps=kwargs['evaluation_steps'])
     elapsed = (dt.now() - start_time).seconds
     print("Finished training AND evaluation in {} seconds".format(elapsed))
 

@@ -25,7 +25,7 @@ The simulator is set up as a POMDP problem, using OpenAI's Gym framework
 as the base class. 
 
 The **reward** scheme is based on prediction accuracy:
-![reward_function](./gym_recommendation/data/reward_function.PNG)
+![reward_function](gym_recommendation/envs/reward_function.PNG)
 
 The **observation** is based on derived features from the MovieLens data set:
 - user_mean:  Average rating given by a specific user_id

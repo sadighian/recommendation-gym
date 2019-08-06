@@ -26,3 +26,7 @@ def test_import_data_for_env():
     print("data peak:\n{}".format(kwargs['data'].head()))
     print("item peak:\n{}".format(kwargs['item'].head()))
     print("user peak:\n{}".format(kwargs['user'].head()))
+
+
+if __name__ == '__main__':
+    test_import_data_for_env()

@@ -28,6 +28,13 @@ def download_data():
     print("Starting data download. Saving to {}".format(CWD))
 
     if not os.path.exists(CWD + '/ml-100k'):
+
+        if not os.path.exists(CWD):
+            print('Making data directory...')
+            os.mkdir(CWD)
+            print('Making ml-100k directory...')
+            os.mkdir(CWD + '/ml-100k')
+
         url = 'http://files.grouplens.org/datasets/movielens/ml-100k.zip'
         r = requests.get(url)
 
@@ -110,3 +117,27 @@ def import_data_for_env():
         'user': user
     }
     return kwargs
+
+
+def evaluate(model, env, num_steps=1000):
+    """
+    Evaluate a RL agent
+    """
+    start_time = dt.now()
+    obs = env.reset()
+    step_count = 0
+    episode_number = 1
+    for i in range(num_steps):
+        step_count += 1
+        action, _states = model.predict(obs)
+        obs, reward, done, info = env.step(action)
+        if done:
+            elapsed = (dt.now() - start_time).seconds
+            print("**************EPISODE #{}****************".format(episode_number))
+            print("Total steps=", step_count, "steps/second=", step_count / elapsed)
+            print("Total correct predictions=", env.total_correct_predictions)
+            print("Prediction accuracy=", env.total_correct_predictions / step_count)
+            obs = env.reset()
+            step_count = 0
+            episode_number += 1
+            start_time = dt.now()

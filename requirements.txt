@@ -3,3 +3,5 @@ requests
 numpy
 gym
 pytest
+tensorflow-gpu
+stable-baselines

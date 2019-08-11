@@ -27,30 +27,31 @@ def download_data():
     start_time = dt.now()
     print("Starting data download. Saving to {}".format(CWD))
 
-    if not os.path.exists(CWD + '/ml-100k'):
+    if not os.path.exists(CWD):
+        print('download_data() --> Making ./data/* directory...')
+        os.mkdir(CWD)
 
-        if not os.path.exists(CWD):
-            print('Making data directory...')
-            os.mkdir(CWD)
-            print('Making ml-100k directory...')
-            os.mkdir(CWD + '/ml-100k')
+    if not os.path.exists(os.path.join(CWD, 'ml-100k')):
+        print('download_data() --> Making ./data/ml-100k/* directory...')
+        os.mkdir(os.path.join(CWD, 'ml-100k'))
 
         url = 'http://files.grouplens.org/datasets/movielens/ml-100k.zip'
         r = requests.get(url)
 
         if r.status_code != 200:
-            print('Error: could not download ml100k')
+            print('download_data() --> Error: could not download ml100k')
 
         zip_file_path = os.path.join(CWD, 'ml-100k.zip')
         with open(zip_file_path, 'wb') as f:
             f.write(r.content)
 
-        fzip = zipfile.ZipFile(zip_file_path, 'r')
-        fzip.extractall(path=CWD)
-        fzip.close()
+        with zipfile.ZipFile(zip_file_path, 'r') as f_zip:
+            f_zip.extractall(path=CWD)
 
         elapsed = (dt.now() - start_time).seconds
-        print('Download completed in {} seconds.'.format(elapsed))
+        print('download_data() --> completed in {} seconds.'.format(elapsed))
+    else:
+        print('Using cached data located at {}.'.format(os.path.join(CWD, 'ml-100k')))
 
 
 def convert_header_to_camel_case(headers):
@@ -107,15 +108,9 @@ def import_data_for_env():
         (2) Movie reference data
         (3) User reference data
     """
-    if not os.path.exists(os.path.join(CWD, 'ml-100k')):
-        print("Unable to find ml-100k data set in {}".format(CWD))
-        download_data()
-    data, item, user = import_data()
-    kwargs = {
-        'data': data,
-        'item': item,
-        'user': user
-    }
+    download_data()
+    kwargs = dict([(label, data) for label, data
+                   in zip(['data', 'item', 'user'], import_data())])
     return kwargs
 
 

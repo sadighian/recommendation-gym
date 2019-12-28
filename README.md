@@ -75,7 +75,7 @@ setup.py
 
 1.  Clone the project 
 ```
-git clone https://github.com/RedBanies3ofThem/recommendation-gym.git
+git clone https://github.com/sadighian/recommendation-gym.git
 ```
 2.  Create a virtual environment 
 ```
@@ -103,6 +103,6 @@ Refer to `ppo_experiment.py` for all the flags.
     year = {2019},
     publisher = {GitHub},
     journal = {GitHub repository},
-    howpublished = {\url{https://github.com/RedBanies3ofThem/recommendation-gym}},
+    howpublished = {\url{https://github.com/sadighian/recommendation-gym}},
 }
 ```

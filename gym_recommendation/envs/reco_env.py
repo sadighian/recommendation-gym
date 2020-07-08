@@ -225,5 +225,5 @@ class RecoEnv(Env):
         if prediction_difference == 0:
             reward += 1.
         else:
-            reward += np.log(float(prediction_difference) / 5.)  # Added log-penalty
+            reward -= np.log(1. - prediction_difference / 5)
         return reward

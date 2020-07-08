@@ -1,9 +1,13 @@
-import requests
 import os
 import zipfile
-import pandas as pd
 from datetime import datetime as dt
+from typing import Dict, List, Tuple
 
+import pandas as pd
+import requests
+from stable_baselines.common.base_class import ActorCriticRLModel
+
+from . import RecoEnv
 
 DATA_HEADER = "user id | item id | rating | timestamp"
 ITEM_HEADER = "movie id | movie title | release date | video release date | IMDb URL | " \
@@ -12,17 +16,15 @@ ITEM_HEADER = "movie id | movie title | release date | video release date | IMDb
               "Romance | Sci-Fi | Thriller | War | Western"
 USER_HEADER = "user id | age | gender | occupation | zip code"
 
-
 # Static file path for saving and importing data set
 # `gym_recommendation/data/...`
 CWD = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 
 
-def download_data():
+def download_data() -> None:
     """
     Helper function to download MovieLens 100k data set and save to the `ml-100k`
     directory within the `/data` folder.
-    :return: (void)
     """
     start_time = dt.now()
     print("Starting data download. Saving to {}".format(CWD))
@@ -54,7 +56,7 @@ def download_data():
         print('Using cached data located at {}.'.format(os.path.join(CWD, 'ml-100k')))
 
 
-def convert_header_to_camel_case(headers):
+def convert_header_to_camel_case(headers: str) -> List[str]:
     """Take headers available in ML 100k doc and convert it to a list of strings
 
     Example:
@@ -64,7 +66,7 @@ def convert_header_to_camel_case(headers):
     return headers.replace(' ', '_').split('_|_')
 
 
-def import_data():
+def import_data() -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Helper function to import MovieLens 100k data set into Panda DataFrames.
 
@@ -96,7 +98,7 @@ def import_data():
     return data, item, user
 
 
-def import_data_for_env():
+def import_data_for_env() -> Dict[str, pd.DataFrame]:
     """
     Helper function to download and import MovieLens 100k data set into Panda DataFrames.
 
@@ -114,7 +116,7 @@ def import_data_for_env():
     return kwargs
 
 
-def evaluate(model, env, num_steps=1000):
+def evaluate(model: ActorCriticRLModel, env: RecoEnv, num_steps: int = 1000) -> None:
     """
     Evaluate a RL agent
     """
@@ -128,10 +130,10 @@ def evaluate(model, env, num_steps=1000):
         obs, reward, done, info = env.step(action)
         if done:
             elapsed = (dt.now() - start_time).seconds
-            print("**************EPISODE #{}****************".format(episode_number))
-            print("Total steps=", step_count, "steps/second=", step_count / elapsed)
-            print("Total correct predictions=", env.total_correct_predictions)
-            print("Prediction accuracy=", env.total_correct_predictions / step_count)
+            print(f"**************EPISODE #{episode_number}****************")
+            print(f"Total steps = {step_count} | steps/second = {step_count / elapsed}")
+            print(f"Total correct predictions = {env.total_correct_predictions}")
+            print(f"Prediction accuracy = {env.total_correct_predictions / step_count}")
             obs = env.reset()
             step_count = 0
             episode_number += 1

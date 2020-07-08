@@ -1,13 +1,14 @@
-import numpy as np
 from datetime import datetime as dt
+
 import gym
+import numpy as np
+
 from gym_recommendation import RecoEnv, import_data_for_env
 
 
-def test_recommendation_environment():
+def test_recommendation_environment() -> None:
     """
     Test case to validate RecoEnv is compatible with OpenAI Gym's Make() function.
-    :return: (void)
     """
     start_time = dt.now()
 
@@ -31,9 +32,12 @@ def test_recommendation_environment():
 
         if done:
             elapsed = (dt.now() - start_time).seconds
-            print("Simulation completed on step " +
-                  "{} in {} seconds at a rate of {:.2f} steps/sec".format(
-                      i, elapsed, i/elapsed))
+            print("Simulation completed on step "
+                  f"{i} in {elapsed} seconds at a rate of {i / elapsed:.2f} steps/sec")
             break
-    print('total_correct_predictions: {}'.format(env.env.total_correct_predictions))
-    print('total_rewards: {}'.format(total_rewards))
+    print(f'total_correct_predictions: {env.env.total_correct_predictions}')
+    print(f'total_rewards: {total_rewards}')
+
+
+if __name__ == '__main__':
+    test_recommendation_environment()

@@ -1,12 +1,13 @@
-import gym
-import gym_recommendation
+import argparse
+import os
 from datetime import datetime as dt
+
+import gym
+from stable_baselines import PPO2
 from stable_baselines.common.policies import MlpPolicy
 from stable_baselines.common.vec_env import SubprocVecEnv
-from stable_baselines import PPO2
-import os
-import argparse
 
+import gym_recommendation
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--learning_rate',
@@ -49,10 +50,10 @@ parser.add_argument('--nminibatches',
                     default=4,
                     help="Number of mini-batches in PPO",
                     type=int)
-kwargs = vars(parser.parse_args())
+user_args = vars(parser.parse_args())
 
 
-def main(kwargs):
+def main(kwargs: dict):
     start_time = dt.now()
     number_of_cpu = os.cpu_count()
     envs = SubprocVecEnv([lambda: gym.make(gym_recommendation.RecoEnv.id,
@@ -71,22 +72,23 @@ def main(kwargs):
         'vf_coef': 0.5,
         'max_grad_norm': 0.5,
         'lam': 0.95,
-        'cliprange': 0.2,
+        'cliprange': 0.3,
         'verbose': 0,
         '_init_setup_model': True,
+        'seed': kwargs['seed']
     }
     print('*********************************')
     print("ppo_configs:", ppo_configs)
     print('*********************************')
 
-    model = PPO2(MlpPolicy, envs, **ppo_configs)
-    model.learn(total_timesteps=kwargs['training_steps'], seed=kwargs['seed'])
+    model = PPO2(policy=MlpPolicy, env=envs, **ppo_configs)
+    model.learn(total_timesteps=kwargs['training_steps'])
     elapsed = (dt.now() - start_time).seconds
-    print("Finished training in {} seconds".format(elapsed))
+    print(f"Finished training in {elapsed} seconds")
 
     if kwargs['save_model']:
         save_name = 'PPO2_Recommendations'
-        print('Saving PPO model as {}'.format(save_name))
+        print(f'Saving PPO model as {save_name}')
         model.save(save_name)
 
     gym_recommendation.evaluate(model=model,
@@ -94,9 +96,9 @@ def main(kwargs):
                                              **gym_recommendation.import_data_for_env()),
                                 num_steps=kwargs['evaluation_steps'])
     elapsed = (dt.now() - start_time).seconds
-    print("Finished training AND evaluation in {} seconds".format(elapsed))
+    print(f"Finished training AND evaluation in {elapsed} seconds")
 
 
 if __name__ == "__main__":
-    print("Starting experiment with PPO2 at {}".format(dt.now()))
-    main(kwargs=kwargs)
+    print(f"Starting experiment with PPO2 at {dt.now()}")
+    main(kwargs=user_args)

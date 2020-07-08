@@ -1,15 +1,22 @@
+from typing import Dict, List, Tuple, Union
+
+import numpy as np
+import pandas as pd
 from gym import Env
 from gym import spaces
-import numpy as np
 
 
 class RecoEnv(Env):
-    # environment static properties
+    # Environment static properties
     metadata = {'render.modes': ['human', 'logger']}
     id = 'reco-v0'
     actions = np.eye(5)
 
-    def __init__(self, data=None, item=None, user=None, seed=1):
+    def __init__(self,
+                 data: pd.DataFrame,
+                 item: pd.DataFrame,
+                 user: pd.DataFrame,
+                 seed: int = 1):
         """
         Parameterized constructor
         """
@@ -44,7 +51,7 @@ class RecoEnv(Env):
                                                 step_number=0).shape,
                                             dtype=np.float32)
 
-    def step(self, action=0):
+    def step(self, action: int = 0) -> Tuple[np.ndarray, float, bool, dict]:
         """
         Agent steps through environment
         """
@@ -61,36 +68,36 @@ class RecoEnv(Env):
         self.local_step_number += 1
         return self.observation, self.reward, self.done, {}
 
-    def reset(self):
+    def reset(self) -> np.ndarray:
         """
         Reset the environment to an initial state
         """
         self.local_step_number = 0
         self.reward = 0.0
         self.done = False
-        print("Reco is being reset() --> first step={} | Total_correct={}".format(
-            self.local_step_number, self.total_correct_predictions))
+        print(f"Reco is being reset() --> "
+              f"first step = {self.local_step_number} | "
+              f"Total_correct = {self.total_correct_predictions}")
         self.total_correct_predictions = 0
         return self._get_observation(step_number=self.local_step_number)
 
-    def render(self, mode='human'):
+    def render(self, mode: str = 'human') -> None:
         """
         Render environment
         """
         if mode == 'logger':
-            print("Env observation at step {} is \n{}".format(
-                self.local_step_number, self.observation))
+            print(f"Env observation at step {self.local_step_number} is \n{self.observation}")
 
-    def close(self):
+    def close(self) -> None:
         """
         Clear resources when shutting down environment
         """
         self.data = None
         self.user = None
         self.item = None
-        print("Reco is being closed.")
+        print("RecoGym is being closed.")
 
-    def seed(self, seed=1):
+    def seed(self, seed: int = 1) -> List[int]:
         """
         Set random seed
         """
@@ -98,18 +105,18 @@ class RecoEnv(Env):
         self._seed = seed
         return [seed]
 
-    def __str__(self):
-        return 'GymID={} | seed={}'.format(RecoEnv.id, self._seed)
+    def __str__(self) -> str:
+        return f'GymID={RecoEnv.id} | seed={self._seed}'
 
     @staticmethod
-    def _one_hot(num, selection):
+    def _one_hot(num: int, selection: int) -> np.ndarray:
         """
         Create one-hot features
         """
         return np.eye(num, dtype=np.float32)[selection]
 
     @staticmethod
-    def _get_movie_genre(item):
+    def _get_movie_genre(item: pd.DataFrame) -> Dict[int, np.ndarray]:
         """
         Extract one-hot of movie genre type from dataset
         """
@@ -120,7 +127,7 @@ class RecoEnv(Env):
         return movie_genre
 
     @staticmethod
-    def _get_user_data(user):
+    def _get_user_data(user: pd.DataFrame) -> Dict[int, Dict[str, Union[int, str]]]:
         """
         Create dictionary of user stats (e.g., age, occupation, gender)
         to use as inputs into other functions.
@@ -130,13 +137,13 @@ class RecoEnv(Env):
         tmp_user = tmp_user.drop(['user_id'], axis=1)
         return tmp_user.to_dict(orient='index')
 
-    def _get_movie_genre_buckets(self, movie_id=1):
+    def _get_movie_genre_buckets(self, movie_id: int = 1) -> np.ndarray:
         """
         Extract one-hot of movie genre type for a specific movie_id
         """
         return self.movie_genre.get(movie_id, np.empty(19, dtype=np.float32))
 
-    def _get_age_buckets(self, age=10):
+    def _get_age_buckets(self, age: int = 10) -> np.ndarray:
         """
         Extract one-hot of age group for a specific age
         """
@@ -156,14 +163,14 @@ class RecoEnv(Env):
             bucket_number = 6
         return self._one_hot(num=7, selection=bucket_number)
 
-    def _get_occupation_buckets(self, job='none'):
+    def _get_occupation_buckets(self, job: str = 'none') -> np.ndarray:
         """
         Extract one-hot of occupation type for a specific job
         """
         selection = self.occupations.index(job)
         return self._one_hot(num=self.num_of_occupations, selection=selection)
 
-    def _get_gender_buckets(self, gender='m'):
+    def _get_gender_buckets(self, gender: str = 'm') -> np.ndarray:
         """
         Extract one-hot of gender type for a specific gender (e.g., M or F)
         """
@@ -171,7 +178,7 @@ class RecoEnv(Env):
         sex_id = 0 if sex == 'M' else 1
         return self._one_hot(num=2, selection=sex_id)
 
-    def _get_observation(self, step_number=0):
+    def _get_observation(self, step_number: int = 0) -> np.ndarray:
         """
         Get features and concatenate them into one observation
 
@@ -207,7 +214,7 @@ class RecoEnv(Env):
         return np.concatenate((user_mean, movie_mean, movie_genre_bucket,
                                age_bucket, occupation_bucket, gender_bucket))
 
-    def _get_reward(self, action, step_number):
+    def _get_reward(self, action: int, step_number: int) -> float:
         """
         Calculate reward for a given state and action
         """
@@ -218,5 +225,5 @@ class RecoEnv(Env):
         if prediction_difference == 0:
             reward += 1.
         else:
-            reward -= float(prediction_difference) / 5.
+            reward += np.log(float(prediction_difference) / 5.)  # Added log-penalty
         return reward
